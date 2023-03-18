@@ -24,18 +24,25 @@ def dpll(clauses, augmented=False):
     else:
         if not augmented:
             new_literal = clauses[0][0]
-            return dpll(clauses + [[f'not {new_literal}']], True) or dpll(clauses + [[new_literal]], True)
+            if 'not' in new_literal:
+                new_literal = new_literal.replace('not ', '')
+            return dpll([[f'not {new_literal}']] + clauses, True) or dpll([[new_literal]] + clauses, True)
+        else:
+            return False
 
 
 def unit_resolution(literal, X):
     is_negated = 'not' in literal
+    new_X = []
     for clause in X:
         if literal in clause:
             X.remove(clause)
         elif is_negated and literal.replace('not ', '') in clause:
-            clause.remove(literal.replace('not ', ''))
+            new_X.append(clause.remove(literal.replace('not ', '')))
         elif not is_negated and f'not {literal}' in clause:
-            clause.remove(f'not {literal}')
+            new_X.append(clause.remove(f'not {literal}'))
+        else:
+            new_X.append(clause)
     return X
 
 
