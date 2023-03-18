@@ -10,15 +10,14 @@ def getfilename():
 
 def dpll(clauses, augmented=False):
     X = clauses.copy()
-    change = False
-    while True:
+    redo = True
+    while redo:
+        redo = False
         for clause in X:
             if len(clause) == 1:
                 X = unit_resolution(clause[0], X)
-                change = True    
-        if not change:
-            break
-        change = False
+                print(f"Unit resolution: {X}")
+                redo = True    
     if len(X) == 0:
         return True
     else:
@@ -36,14 +35,15 @@ def unit_resolution(literal, X):
     new_X = []
     for clause in X:
         if literal in clause:
-            X.remove(clause)
+            continue
         elif is_negated and literal.replace('not ', '') in clause:
+            # TODO: fix this => the remove function return None
             new_X.append(clause.remove(literal.replace('not ', '')))
         elif not is_negated and f'not {literal}' in clause:
             new_X.append(clause.remove(f'not {literal}'))
         else:
             new_X.append(clause)
-    return X
+    return new_X
 
 
 def main():
