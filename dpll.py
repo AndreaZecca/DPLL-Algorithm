@@ -73,14 +73,8 @@ def main():
             print("File not found")
             sys.exit(1)
     else:
-        # formula = input("Enter a formula in CNF: ")
-
-        # SAT formula
-        # formula = "(A or B or C) and (not A or not B) and (not A or not C) and (not B or not C)"
-        formula = "(a or not a)"
-
-        # UNSAT formula
-        # formula = "(not p or not s) and (p or r) and (not s or t) and (not p or not r) and (p or s) and (q or s) and (not q or not t) and (r or t) and (q or not r)"
+        formula = input("Enter a formula in CNF: ")
+    
     formula = formula.lower()
     # splitting formula into clauses based on the pharenthesis
     clauses = re.split(r'and', formula)
