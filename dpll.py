@@ -16,15 +16,16 @@ def dpll(clauses, augmented=False):
         for clause in X:
             if len(clause) == 1:
                 X = unit_resolution(clause[0], X)
-                print(f"Unit resolution: {X}")
-                redo = True    
+                if "bot" in X:
+                    return False
+                redo = True   
+                break 
     if len(X) == 0:
         return True
     else:
         if not augmented:
             new_literal = clauses[0][0]
-            if 'not' in new_literal:
-                new_literal = new_literal.replace('not ', '')
+            new_literal = new_literal.replace('not ', '')
             return dpll([[f'not {new_literal}']] + clauses, True) or dpll([[new_literal]] + clauses, True)
         else:
             return False
@@ -35,12 +36,26 @@ def unit_resolution(literal, X):
     new_X = []
     for clause in X:
         if literal in clause:
-            continue
+            if is_negated and literal.replace('not','') in clause:
+                new_X.append("bot")
+            elif not is_negated and f'not {literal}' in clause:
+                new_X.append("bot")
+            else:
+                continue
         elif is_negated and literal.replace('not ', '') in clause:
-            # TODO: fix this => the remove function return None
-            new_X.append(clause.remove(literal.replace('not ', '')))
+            clause = [l for l in clause if l != literal.replace('not ', '')]
+                # clause.remove(literal.replace('not ', ''))
+            if len(clause) > 0:
+                new_X.append(clause)
+            else :
+                new_X.append("bot")
         elif not is_negated and f'not {literal}' in clause:
-            new_X.append(clause.remove(f'not {literal}'))
+            clause = [l for l in clause if l != f'not {literal}']
+            # clause.remove(f'not {literal}')
+            if len(clause) > 0:
+                new_X.append(clause)
+            else :
+                new_X.append("bot")
         else:
             new_X.append(clause)
     return new_X
@@ -58,7 +73,14 @@ def main():
             print("File not found")
             sys.exit(1)
     else:
-        formula = input("Enter a formula in CNF: ")
+        # formula = input("Enter a formula in CNF: ")
+
+        # SAT formula
+        # formula = "(A or B or C) and (not A or not B) and (not A or not C) and (not B or not C)"
+        formula = "(a or not a)"
+
+        # UNSAT formula
+        # formula = "(not p or not s) and (p or r) and (not s or t) and (not p or not r) and (p or s) and (q or s) and (not q or not t) and (r or t) and (q or not r)"
     formula = formula.lower()
     # splitting formula into clauses based on the pharenthesis
     clauses = re.split(r'and', formula)
